@@ -6,6 +6,7 @@ Utilities for interpolating between stationary points on PES
 
 import itertools
 
+from ase.build import minimize_rotation_and_translation
 from ase.neb import NEB
 from ase.optimize import MDMin
 from ase.io import read
@@ -126,8 +127,10 @@ def interp_PES(images):
         the method of interpolation between the current image and its
         successor.  No interpolation is performed in the absence of it.
 
+    reorient
 
-
+        If the image point should be reorientated with respect to the previous
+        image point.
 
     """
 
@@ -136,6 +139,7 @@ def interp_PES(images):
     ATOMS = 'atoms'
     DUPL = 'dupl'
     INTERP = 'interp'
+    REORIENT = 'reorient'
 
     # To hold the duplication of each image as well as the path to its
     # successor.
@@ -146,13 +150,17 @@ def interp_PES(images):
     for i in images:
         img = dict(i)
         if ATOMS in i:
-            imgs.append(img)
+            atoms = i[ATOMS]
         else:
             if FORMAT not in i:
-                img[ATOMS] = read(i[FILE])
+                atoms = read(i[FILE])
             else:
-                img[ATOMS] = read(i[FILE], format=i[FORMAT])
-        img[FRAMES] = [img[ATOMS], ]
+                atoms = read(i[FILE], format=i[FORMAT])
+        if REORIENT in i:
+            minimize_rotation_and_translation(imgs[-1][ATOMS], atoms)
+        img[ATOMS] = atoms
+        img[FRAMES] = [atoms, ]
+        imgs.append(img)
         continue
 
     # Make duplication for the images.
