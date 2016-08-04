@@ -41,6 +41,10 @@ def interp_by_neb(initial, final, n_images, interp='idpp',
     :return: The list of images between the points.
     """
 
+    # To circumvent the error from interpolation when we have no middle images.
+    if n_images == 0:
+        return [initial, final]
+
     images = [initial]
     for _ in range(n_images):
         image = initial.copy()
