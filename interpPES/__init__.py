@@ -101,7 +101,7 @@ def aug_point(point, n_dupl):
 #
 
 
-def interp_PES(images):
+def interp_PES(images, flatten=True):
     """Interpolate between an series of images.
 
     The images should be specified by a dictionary, with keys,
@@ -182,6 +182,8 @@ def interp_PES(images):
                 curr[ATOMS], succ[ATOMS], **curr[INTERP]
             ))
 
-    return list(itertools.chain.from_iterable(
-        i[FRAMES] for i in imgs
-    ))
+    frame_sets = (i[FRAMES] for i in imgs)
+    if flatten:
+        return list(itertools.chain.from_iterable(frame_sets))
+    else:
+        return list(frame_sets)
